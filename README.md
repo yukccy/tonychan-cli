@@ -68,5 +68,5 @@ TONYCHAN_SITE=http://localhost:1313 go run ./cmd/tonychan
 ## Release
 
 Push a `v*` tag. GoReleaser builds the binaries, publishes the GitHub release and updates the
-Homebrew cask in [yukccy/homebrew-tap](https://github.com/yukccy/homebrew-tap), using the
-`HOMEBREW_TAP_GITHUB_TOKEN` secret.
+Homebrew cask in [yukccy/homebrew-tap](https://github.com/yukccy/homebrew-tap). It pushes with
+`HOMEBREW_TAP_DEPLOY_KEY`, the private half of a write deploy key on that repo.
