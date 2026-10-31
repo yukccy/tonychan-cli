@@ -35,15 +35,18 @@ changelog:
       - "^docs:"
       - "^test:"
 
-# `brew install yukccy/tap/tonychan`. Pushes to github.com/yukccy/homebrew-tap with a token
-# that can write to that repo; the workflow's own GITHUB_TOKEN can't.
+# `brew install yukccy/tap/tonychan`. Pushes to github.com/yukccy/homebrew-tap over SSH with a
+# write deploy key on that repo only; the workflow's own GITHUB_TOKEN can't reach it.
 homebrew_casks:
   - name: tonychan
     binaries: [tonychan]
     repository:
       owner: yukccy
       name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+      branch: main
+      git:
+        url: git@github.com:yukccy/homebrew-tap.git
+        private_key: "{{ .Env.HOMEBREW_TAP_DEPLOY_KEY }}"
     homepage: https://yukccy.com
     description: Tony Chan's site, yukccy.com, in a terminal
     license: MIT
