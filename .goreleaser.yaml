@@ -1,0 +1,57 @@
+# Release builds and the Homebrew tap. Runs from .github/workflows/release.yml on a v* tag.
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: ./cmd/tonychan
+    binary: tonychan
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+# `brew install yukccy/tap/tonychan`. Pushes to github.com/yukccy/homebrew-tap with a token
+# that can write to that repo; the workflow's own GITHUB_TOKEN can't.
+homebrew_casks:
+  - name: tonychan
+    binaries: [tonychan]
+    repository:
+      owner: yukccy
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: https://yukccy.com
+    description: Tony Chan's site, yukccy.com, in a terminal
+    license: MIT
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    # The binaries are not notarised, so macOS would quarantine them on first run.
+    hooks:
+      post:
+        install_steps: |
+          run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/tonychan"]
